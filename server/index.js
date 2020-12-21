@@ -6,7 +6,7 @@ var mongojs = require('mongojs');
 var ObjectID = mongojs.ObjectID;
 var db = mongojs(process.env.MONGO_URL || 'mongodb://localhost:27017/local');
 var app = express();
-var server = app.Server(app);
+var server = http.Server(app);
 var websocket = socketio(server);
 server.listen(3000, () => console.log('Listening on '+ ':3000'));
 
@@ -57,14 +57,24 @@ function _sendExistingMessages(socket) {
 }
 
 function _sendAndSaveMessage(message, socket, fromServer) {
-  var messageData {
+  var messageData = {
     text: message.text,
     user: message.user,
     createdAt: new Date(message.createdAt),
     chatId: chatId
   };
 
-  db.collection('messages').insert(messageData {err, message} => {
+  db.collection('messages').insert(messageData, (err, message) => {
     var emitter = fromServer ? websocket : socket.broadcast;
-  })
+    emmiter.emit('message', [message]);
+  });
+
+  var stdin = process.openStdin();
+  stdin.addListener('data', function(d) {
+    _sendAndSaveMessage({
+      text: d.toString().trim(),
+      createdAt: new Date(),
+      user: {_id: 'robot'}
+    })
+  }, null, true);
 }
