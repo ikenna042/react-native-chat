@@ -20,7 +20,7 @@ export default class Login extends React.Component {
         <View style={styles.circle} />
           <View style={styles.imageContainer}>
             <Image
-              source={require('../../assets/chat.png')}
+              source={require('../assets/chat.png')}
               style={styles.image}
             />
           </View>
